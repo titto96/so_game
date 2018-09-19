@@ -255,7 +255,73 @@ void * delete_players_thread(void * args) {
 
 }
 
+void * sender_thread_func(void * args) {
 
+	TCP_session_thread_args * arg = (TCP_session_thread_args *) args:
+	int socket_udp = arg->socket_udp;
+	PlayersList * players = arg->Players;
+	char buf[100000];
+	PacketHeader packetHeader;
+	printf("[UPDATE SENDER THREAD] Start sending updates\n");
+	int ret, buf_size;
+	while(1) {
+
+		Player * p = players->first;
+		ClientUpdate * updates = malloc(sizeof(ClientUpdate)*(players->n));
+		int i = 0;
+		ret = sem_wait(&sem_players_list_UDP);
+		ERROR_HELPER(ret, "[UPDATE SENDER THREAD] Error sem wait");
+		while(p != NULL) {
+		
+		Vehicle * v = World_getVehicle(&w, p->id);
+
+            updates[i].id = p->id;
+            updates[i].x = v->x;
+            updates[i].y = v->y;
+            updates[i++].theta = v->theta;
+
+            p = p->next;
+
+        }
+
+
+        p = players->first;
+        packetHeader.type = WorldUpdate;
+        WorldUpdatePacket worldUpdatePacket;
+        worldUpdatePacket.header = packetHeader;
+        worldUpdatePacket.num_vehicles = players->n;
+        worldUpdatePacket.updates = updates;
+        buf_size = Packet_serialize(buf, &(worldUpdatePacket.header));
+
+        while(p != NULL) {
+
+
+        	struct sockaddr_in client_addr = p->client_addr_udp;
+                ret = sendto(socket_udp, buf, buf_size, 0, (struct sockaddr*) &client_addr, sizeof(client_addr));
+                char client_ip[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, &(client_addr.sin_addr), client_ip, INET_ADDRSTRLEN);
+                uint16_t client_port = ntohs(client_addr.sin_port); // port number is an unsigned short
+
+                p = p->next;
+
+        }
+
+        ret = sem_post(&sem_players_list_UDP);
+        ERROR_HELPER(ret, "[UPDATE SENDER THREAD] Error sem wait");
+        free(updates);
+
+        usleep(30000);
+
+    }
+
+    printf("[UPDATE SENDER THREAD] Exiting\n");
+
+    close(socket_udp);
+    free(args);
+    pthread_exit(NULL);
+
+
+}	
 
 int main(int argc, char **argv) {
   if (argc<3) {

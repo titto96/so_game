@@ -51,6 +51,8 @@ typedef struct {
 } TCP_thread_args;				//**
 
 
+
+
 void * TCP_thread(void * arg) {			//**
 
     TCP_session_thread_args * args = (TCP_session_thread_args *)arg;
@@ -190,7 +192,7 @@ void * TCP_thread(void * arg) {			//**
 
     // close socket
     ret = close(socket_desc);
-    ERROR_HELPER(ret, "[PLAYER HANDLER THREAD] Cannot close socket for incoming connection");
+    ERROR_HELPER(ret, "[PLAYER HANDLER THREAD] Can't close socket for incoming connection");
 
     printf("[PLAYER HANDLER THREAD] exiting\n");
     pthread_exit(NULL);
