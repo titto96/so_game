@@ -200,6 +200,60 @@ void * TCP_thread(void * arg) {			//**
 
 
 
+void * delete_players_thread(void * args) {
+
+    PlayersList * players = (PlayersList *) args;
+    int ret;
+
+    while(1) {
+
+        Player * p = players->first;
+
+        ret = sem_wait(&sem_players_list_UDP);
+        ERROR_HELPER(ret, "[DELETE PLAYER THREAD] Error sem wait");
+        //ret = sem_wait(&sem_players_list_TCP);
+        //ERROR_HELPER(ret, "[DELETE PLAYER THREAD] Error sem wait");
+
+        while(p != NULL) {
+
+            if(p->last_packet_timestamp < timestamp - 1200) {
+
+                Player * pd = players->first;
+                while(pd != NULL) {
+
+                    pd->new[p->id] = 1;
+                    pd = pd->next;
+                }
+
+                Vehicle * to_remove = World_getVehicle(&w, p->id);
+                int tmpid = p->id;
+                World_detachVehicle(&w, to_remove);
+                Vehicle_destroy(to_remove);
+                free(to_remove);
+                player_list_delete(players, p->id);
+                free_id[tmpid] = 1;
+                players_counter -= 1;
+                printf("[DELETE PLAYER THREAD] Player %d quit game, players are now %d\n", tmpid, players->n);
+                break;
+
+            }
+
+            if(p != NULL) p = p->next;
+
+        }
+
+        ret = sem_post(&sem_players_list_UDP);
+        ERROR_HELPER(ret, "[DELETE PLAYER THREAD] Error sem wait");
+        //ret = sem_post(&sem_players_list_TCP);
+        //ERROR_HELPER(ret, "[DELETE PLAYER THREAD] Error sem wait");
+
+        usleep(2000000);
+
+    }
+
+}
+
+
 
 int main(int argc, char **argv) {
   if (argc<3) {
