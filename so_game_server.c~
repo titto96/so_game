@@ -11,6 +11,24 @@
 #include "vehicle.h"
 #include "world_viewer.h"
 
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <pthread.h>
+#include <time.h>
+#include <unistd.h>
+#include <arpa/inet.h>  // htons()
+#include <netinet/in.h> // struct sockaddr_in
+#include <sys/socket.h>
+#include <semaphore.h>
+
+#include "common.h"
+
+#include "so_game_protocol.h"
+#include "player_list.h"
+//#include "function.h"
+
 
 int num_id = 1, num_players = 0;		//cambiare nome(**)
 char free_id[MAX_PLAYERS] = { 1 };		//**
