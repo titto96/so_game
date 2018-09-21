@@ -412,7 +412,44 @@ int main(int argc, char **argv) {
 	ret = sem_init(&sem_players_list_UDP, NULL, 1);
 	ERROR_HELPER(ret, "Error sem init");
 
-	//CONTINUARE DA PLAYERSLISTs
+
+	PlayersList * players = players_list_new();
+	int udp_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	struct sockaddr_in si_me = { 0 };
+	ERROR_HELPER(udp_socket, "[MAIN] Cannot open udp socket");
+	memset((char *) &si_me, 0, sizeof(si_me));
+	si_me.sin_family = AF_INET;
+	si_me.sin_port = htons(SERVER_PORT);
+	si_me.sin_addr.s_addr = INADDR_ANY;
+
+	int reuseaddr_udp = 1;		//**
+	ret = setsockopt(udp_socket, SOL_SOCKET, SO_REUSEADDR, &reuseaddr_opt_udp, sizeof(reuseaddr_opt_udp));
+
+	ret = bind(udp_socket, &si_me, sizeof(si_me));
+	ERROR_HELPER(ret, "[MAIN] Error bind");
+	printf("[MAIN] Opened UDP socket\n");
+
+	TCP_session_thread_args * urt_arg = malloc(sizeof(TCP_session_thread_args));
+	urt_arg->socket_udp = udp_socket;
+	urt_arg->Players = players;
+	pthread_t urt;
+	pthread_create(&urt, NULL, update_reciver_thread_func, (void *) urt_arg);
+	pthread_detach(urt);
+
+	TCP_session_thread_args * ust_arg = malloc(sizeof(TCP_session_thread_args));
+	ust_arg->socket_udp = udp_socket;
+	ust_arg->Players = players;
+	pthread_t ust;
+	pthread_create(&ust, NULL, update_sender_thread_func, (void *) ust_arg);
+	pthread_detach(ust);
+
+	pthread_t pdt;
+	pthread_create(&pdt, NULL, delete_players_thread, (void *) players);
+	pthread_detach(pdt);
+
+	//CONTINUA DA WHILE
+
+
 
 
 

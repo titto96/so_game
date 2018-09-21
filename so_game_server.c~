@@ -27,7 +27,7 @@
 
 #include "so_game_protocol.h"
 #include "player_list.h"
-//#include "function.h"
+#include "function.h"
 
 
 int num_id = 1, num_players = 0;		//cambiare nome(**)
@@ -255,8 +255,7 @@ void * delete_players_thread(void * args) {
 
 }
 
-void * sender_thread_func(void * args) {
-
+void * sender_thread_func(void * args) {		//**
 	TCP_session_thread_args * arg = (TCP_session_thread_args *) args:
 	int socket_udp = arg->socket_udp;
 	PlayersList * players = arg->Players;
@@ -323,11 +322,101 @@ void * sender_thread_func(void * args) {
 
 }	
 
+
+
+void * reciver_thread_func(void * args) {		//**
+
+    TCP_session_thread_args * arg = (TCP_session_thread_args *) args;
+    int socket_udp = arg->socket_udp;
+    PlayersList * players = arg->Players;
+    int slen, ret;
+    struct sockaddr_in client_addr_udp;
+    char buf[100000];
+    printf("[UPDATE RECIVER TREAD] Start recivng updates\n");
+    while(1) {
+
+        ret = recvfrom(socket_udp, buf, sizeof(buf), 0, (struct sockaddr *) &client_addr_udp, &slen);
+        ERROR_HELPER(ret, "[UPDATE RECIVER THREAD] Error recive");
+        VehicleUpdatePacket * vehicleUpdatePacket = Packet_deserialize(buf, ret);
+        Player * p = player_list_find(players, vehicleUpdatePacket->id);
+        Vehicle * v = World_getVehicle(&w, p->id);
+        if(v != 0) {
+            v->translational_force_update = vehicleUpdatePacket->translational_force;
+            v->rotational_force_update = vehicleUpdatePacket->rotational_force;
+        }
+        timestamp = (timestamp + 1) % 2000000;
+        p->last_packet_timestamp = timestamp;
+        p->client_addr_udp = client_addr_udp;
+        World_update(&w);
+
+    }
+
+    printf("[UPDATE RECIVER THREAD] Exiting\n");
+
+    close(socket_udp);
+    free(args);
+    pthread_exit(NULL);
+
+}
+
+
+
+
 int main(int argc, char **argv) {
-  if (argc<3) {
-    printf("usage: %s <elevation_image> <texture_image>\n", argv[1]);
-    exit(-1);
-  }
+
+	if (argc<3) {
+	   printf("usage: %s <elevation_image> <texture_image>\n", argv[1]);
+	   exit(-1);
+	}
+	 
+	Image * surfaceTexture = Image_load(argv[1]);
+	Image * elevationTexture = Image_load(argv[2]);
+
+    	int ret;
+	int socket_desc, client_desc;
+
+	World_init(&w, surfaceTexture, elevationTexture,  0.5, 0.5, 0.5);
+
+	memset(free_id, 1, MAX_PLAYERS*sizeof(char));
+
+
+	// some fields are required to be filled with 0
+	struct sockaddr_in server_addr = {0};
+
+	// we will reuse it for accept()
+	int sockaddr_len = sizeof(struct sockaddr_in); 
+
+	// initialize socket for listening
+	socket_desc = socket(AF_INET, SOCK_STREAM, 0);
+
+	// we want to accept connections from any interface
+	server_addr.sin_addr.s_addr = INADDR_ANY; 
+	server_addr.sin_family = AF_INET;
+	// don't forget about network byte order!
+	server_addr.sin_port = htons(SERVER_PORT); 
+
+
+	int reuseaddr = 1;		//**
+	ret = setsockopt(socket_desc, SOL_SOCKET, SO_REUSEADDR, &reuseaddr_opt, sizeof(reuseaddr_opt));
+
+	// bind address to socket
+	ret = bind(socket_desc, (struct sockaddr *)&server_addr, sockaddr_len);
+
+	// start listening
+	ret = listen(socket_desc, MAX_CONN_QUEUE);
+
+	// we allocate client_addr dynamically and initialize it to zero
+	struct sockaddr_in *client_addr = calloc(1, sizeof(struct sockaddr_in));
+
+
+	ret = sem_init(&sem_players_list_UDP, NULL, 1);
+	ERROR_HELPER(ret, "Error sem init");
+
+	//CONTINUARE DA PLAYERSLISTs
+
+
+
+
   char* elevation_filename=argv[1];
   char* texture_filename=argv[2];
   char* vehicle_texture_filename="./images/arrow-right.ppm";
