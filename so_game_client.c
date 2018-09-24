@@ -11,6 +11,18 @@
 #include "vehicle.h"
 #include "world_viewer.h"
 
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <pthread.h>
+#include <time.h>
+#include <unistd.h>
+#include <arpa/inet.h>  // htons()
+#include <netinet/in.h> // struct sockaddr_in
+#include <sys/socket.h>
+#include <semaphore.h>
+
 int id, s;
 int current = 1;		//**
 WorldViewer viewer;
