@@ -447,13 +447,67 @@ int main(int argc, char **argv) {
 	pthread_create(&pdt, NULL, delete_players_thread, (void *) players);
 	pthread_detach(pdt);
 
-	//CONTINUA DA WHILE
+	
+	//Start Listening for new players
+  	while(1) {
+
+		while(players_counter == MAX_PLAYERS);
+
+        	client_desc = accept(socket_desc, (struct sockaddr *)client_addr, (socklen_t *)&sockaddr_len);
+        	if (client_desc == -1 && errno == EINTR) continue;
+
+        	pthread_t session_init_thread;
+
+        	//Put arguments for the new thread into a buffer
+        	TCP_session_thread_args * sit_arg = malloc(sizeof(TCP_session_thread_args));
+
+
+        	//sit thread arguments
+        	sit_arg->socket_desc = client_desc;
+        	sit_arg->socket_udp = udp_socket;
+        	sit_arg->client_addr = client_addr;
+        	sit_arg->SurfaceTexture = surfaceTexture;
+        	sit_arg->ElevationTexture = elevationTexture;
+      		sit_arg->Players = players;
+
+        	int i = 0;
+       		while(free_id[i] == 0) {
+            	i++;
+            	
+		if(i == MAX_PLAYERS) break;
+        	}
+        	
+		if(i == MAX_PLAYERS) {
+            	printf("[MAIN] Players limit reached\n");
+            	continue;
+        	}
+
+        	free_id[i] = 0;
+        	sit_arg->id = i;
+        	id_counter++;
+        	players_counter++;
+
+        	printf("[MAIN] Creating session with ID %d\n", i);
+
+        	ret = pthread_create(&session_init_thread, NULL, TCP_session_thread, (void *)sit_arg);
+        	ret = pthread_detach(session_init_thread);
+
+
+        	client_addr = calloc(1, sizeof(struct sockaddr_in));
+
+
+    	}
+
+    	printf("[MAIN] EXITING\n");
+
+   	return 0;
+}
 
 
 
 
 
-
+/*
   char* elevation_filename=argv[1];
   char* texture_filename=argv[2];
   char* vehicle_texture_filename="./images/arrow-right.ppm";
@@ -523,4 +577,5 @@ int main(int argc, char **argv) {
   // // cleanup
   // World_destroy(&world);
   return 0;             
-}
+}*/
+
