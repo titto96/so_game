@@ -12,15 +12,15 @@
 #include "world_viewer.h"
 
 int id, s;
-int current = 1;		//**
+int current = 1;
 WorldViewer viewer;
 World world;
 Vehicle* vehicle; // The vehicle
-PlayersList * players;
+//PlayersList * players;
 
-sem_t world_started_sem;
+//sem_t world_started_sem;
 
-    void * reciver(void * args) {
+/* void * reciver(void * args) {
 
     int slen, ret;
     char buf[1000000];
@@ -84,7 +84,7 @@ sem_t world_started_sem;
     }
 }
 
-/*void * new_player_listener(void * args) {
+void * new_player_listener(void * args) {
 
     int socket_desc = *((int *) args);
     int recieved_bytes, ret;
