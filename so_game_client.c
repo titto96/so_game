@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
+
 #include "image.h"
 #include "surface.h"
 #include "world.h"
@@ -22,7 +23,7 @@
 #include <netinet/in.h> // struct sockaddr_in
 #include <sys/socket.h>
 #include <semaphore.h>
-
+#include <common.h>
 int id, s;
 int current = 1;		//**
 WorldViewer viewer;
