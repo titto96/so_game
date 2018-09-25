@@ -96,11 +96,12 @@ sem_t world_started_sem;
     }
 }
 
-/*void * new_player_listener(void * args) {
+void * new_player_listener(void * args) {
 
     int socket_desc = *((int *) args);
     int recieved_bytes, ret;
     char buf[1000000];
+
     //Listening for new players
     ret = sem_wait(&world_started_sem);
     ERROR_HELPER(ret, "[NEW PLAYER THREAD] Error sem wait");
@@ -155,8 +156,8 @@ void * update_sender(void * args) {
 
 }
 
-*/
 
+/*
 void keyPressed(unsigned char key, int x, int y)
 {
   switch(key){
@@ -228,6 +229,9 @@ void idle(void) {
   vehicle->translational_force_update *= 0.999;
   vehicle->rotational_force_update *= 0.7;
 }
+*/
+
+
 
 int main(int argc, char **argv) {
   if (argc<3) {
