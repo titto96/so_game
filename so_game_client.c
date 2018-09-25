@@ -258,7 +258,7 @@ int main(int argc, char **argv) {
   // these come from the server
   int my_id;
 
-  /*
+  
   int ret, recieved_bytes;
 
   // variables for handling a socket
@@ -292,8 +292,20 @@ int main(int argc, char **argv) {
     idPacket->header = packetHeader;
     int buf_size = Packet_serialize(buf, &(idPacket->header));
 
+    while((ret = send(socket_desc, buf, buf_size, 0)) < 0) {
+        if (errno == EINTR) continue;
+        ERROR_HELPER(-1, "[MAIN] Cannot write to socket");
+    }
+    printf("[MAIN] ID request sent\n");
 
-  */
+    //Read id from server
+    while((recieved_bytes = recv(socket_desc, buf, sizeof(buf), 0)) < 0)
+    {
+        if (errno == EINTR)
+            continue;
+        ERROR_HELPER(-1, "Cannot read from socket");
+    }
+  
   Image* map_elevation;
   Image* map_texture;
   Image* my_texture_from_server;
