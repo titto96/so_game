@@ -1,0 +1,76 @@
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include "player_list.h"
+
+PlayersList * players_list_new() {
+
+    PlayersList * ris = malloc(sizeof(PlayersList));
+    ris->first = NULL;
+    ris->n = 0;
+
+}
+
+Player * player_list_insert(PlayersList * p, int id, Image * i) {
+
+    if(p == NULL) return NULL;
+    Player * pl = malloc(sizeof(Player));
+    pl->id = id;
+    pl->texture = i;
+    pl->next = NULL;
+    memset(pl->new, 1, MAX_PLAYERS);
+    pl->position.x = 0;
+    pl->position.y = 0;
+    pl->position.theta = 0;
+
+    if(p->n == 0) {
+        p->first = pl;
+        //p->last = pl;
+    }
+    else {
+        Player * aux = p->first;
+
+        while(aux->next != NULL) aux = aux->next;
+        aux->next = pl;
+    }
+    p->n = p->n + 1;
+
+    return pl;
+
+}
+
+Player * player_list_find(PlayersList * p, int id) {
+
+    if(p == NULL) return NULL;
+    Player * pl = p->first;
+    while(pl != NULL && pl->id != id) pl = pl->next;
+    if(pl == NULL) return NULL;
+    return pl;
+
+}
+
+void player_list_delete(PlayersList * p, int id) {
+
+    if(p == NULL) return;
+
+    if(p->first->id == id) {
+        Player * to_delete = p->first;
+        p->first = p->first->next;
+        free(to_delete);
+        p->n = p->n - 1;
+        return;
+    }
+
+    Player ** pl = &(p->first);
+    while(*pl != NULL && (*pl)->next != NULL && (*pl)->next->id != id) pl = &((*pl)->next);
+    if((*pl)->next == NULL) return;
+
+    Player * to_delete = (*pl)->next;
+    (*pl)->next = (*pl)->next->next;
+    free(to_delete);
+    p->n = p->n - 1;
+    return;
+
+}
+
+
