@@ -335,6 +335,13 @@ int main(int argc, char **argv) {
 
     ret = sem_init(&world_started_sem, NULL, 0);
     ERROR_HELPER(ret, "[MAIN] Error sem init");
+
+
+    //Reciving SurfaceTexture
+    recv_packet_TCP(socket_desc, buf);
+    printf("[MAIN] Surface texture recived\n");
+    imagePacket = (ImagePacket *) Packet_deserialize(buf, ((PacketHeader *) buf)->size);
+    Image * SurfaceTexture = imagePacket->image;
   
 
 
