@@ -342,6 +342,12 @@ int main(int argc, char **argv) {
     printf("[MAIN] Surface texture recived\n");
     imagePacket = (ImagePacket *) Packet_deserialize(buf, ((PacketHeader *) buf)->size);
     Image * SurfaceTexture = imagePacket->image;
+
+   //Reciving ElevationTexture
+    recv_packet_TCP(socket_desc, buf);
+    imagePacket = (ImagePacket *) Packet_deserialize(buf, ((PacketHeader *) buf)->size);
+    Image * ElevationTexture = imagePacket->image;
+    printf("[MAIN] Elevation texture recived\n");
   
 
 
