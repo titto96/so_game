@@ -360,6 +360,19 @@ int main(int argc, char **argv) {
     ret = inet_aton(SERVER_ADDRESS , &si_other.sin_addr);
     ERROR_HELPER(ret, "[MAIN] Error");
 
+    players = players_list_new();
+
+    pthread_t tr;
+    pthread_create(&tr, NULL, reciver, (void *) &si_other);
+    pthread_detach(tr);
+
+    pthread_t npl;
+    pthread_create(&npl, NULL, new_player_listener, &socket_desc);
+    pthread_detach(npl);
+
+    pthread_t ust;
+    pthread_create(&ust, NULL, update_sender, (void *) &si_other);
+    pthread_detach(ust);
 
 
   Image* map_elevation;

@@ -362,15 +362,33 @@ int main(int argc, char **argv) {
 
     players = players_list_new();
 
+    pthread_t tr;
+    pthread_create(&tr, NULL, reciver, (void *) &si_other);
+    pthread_detach(tr);
 
-  Image* map_elevation;
+    pthread_t npl;
+    pthread_create(&npl, NULL, new_player_listener, &socket_desc);
+    pthread_detach(npl);
+
+    pthread_t ust;
+    pthread_create(&ust, NULL, update_sender, (void *) &si_other);
+    pthread_detach(ust);
+
+
+/*  Image* map_elevation;
   Image* map_texture;
   Image* my_texture_from_server;
+*/
 
+  //RUN WORLD
   // construct the world
   World_init(&world, map_elevation, map_texture, 0.5, 0.5, 0.5);
+  
+  //create vehicle
   vehicle=(Vehicle*) malloc(sizeof(Vehicle));
   Vehicle_init(&vehicle, &world, my_id, my_texture_from_server);
+  
+  // push it to the world
   World_addVehicle(&world, v);
 
   // spawn a thread that will listen the update messages from
