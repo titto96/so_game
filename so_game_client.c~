@@ -312,7 +312,29 @@ int main(int argc, char **argv) {
             continue;
         ERROR_HELPER(-1, "Cannot read from socket");
     }
+
+    //Send texture to server
+    packetHeader.type = PostTexture;
+    ImagePacket * imagePacket = malloc(sizeof(ImagePacket));
+    imagePacket->id = my_id;
+    imagePacket->image = my_texture;
+    imagePacket->header = packetHeader;
+    buf_size = Packet_serialize(buf, &(imagePacket->header));
+    
+    while((ret = send(socket_desc, buf, buf_size, 0)) < 0) {
+        if (errno == EINTR) continue;
+        ERROR_HELPER(-1, "Cannot write to socket");
+    }
+    
+    printf("[MAIN] Texture sent to server\n");
+
+    ret = sem_init(&world_started_sem, NULL, 0);
+    ERROR_HELPER(ret, "[MAIN] Error sem init");
   
+
+
+
+
   Image* map_elevation;
   Image* map_texture;
   Image* my_texture_from_server;

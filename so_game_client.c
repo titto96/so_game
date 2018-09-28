@@ -313,6 +313,11 @@ int main(int argc, char **argv) {
         ERROR_HELPER(-1, "Cannot read from socket");
     }
 
+    IdPacket* deserialized_packet = (IdPacket*)Packet_deserialize(buf, sizeof(buf));
+    printf("[MAIN] Recived ID = %d.\n", deserialized_packet->id);
+    my_id = deserialized_packet->id;
+    id = my_id;
+
     //Send texture to server
     packetHeader.type = PostTexture;
     ImagePacket * imagePacket = malloc(sizeof(ImagePacket));
