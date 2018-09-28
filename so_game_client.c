@@ -349,8 +349,18 @@ int main(int argc, char **argv) {
     Image * ElevationTexture = imagePacket->image;
     printf("[MAIN] Elevation texture recived\n");
   
+    struct sockaddr_in si_other, si_me; 
+    int slen=sizeof(si_other);
+    s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    ERROR_HELPER(s, "[MAIN] Error socket");
 
+    memset((char *) &si_other, 0, sizeof(si_other));
+    si_other.sin_family = AF_INET;
+    si_other.sin_port = htons(SERVER_PORT);
+    ret = inet_aton(SERVER_ADDRESS , &si_other.sin_addr);
+    ERROR_HELPER(ret, "[MAIN] Error");
 
+    players = players_list_new();
 
 
   Image* map_elevation;
