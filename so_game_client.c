@@ -399,9 +399,16 @@ int main(int argc, char **argv) {
   // request the texture and add the player to the pool
   /*FILLME*/
 
+  ret = sem_post(&world_started_sem);    
+  ret = sem_post(&world_started_sem);
+  ret = sem_post(&world_started_sem);
+
+  ERROR_HELPER(ret, "[MAIN] Error world started");
+
   WorldViewer_runGlobal(&world, vehicle, &argc, argv);
 
-  // cleanup
+ /* // cleanup
   World_destroy(&world);
-  return 0;
+*/ 
+ return 0;
 }
