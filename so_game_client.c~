@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-
+#include "so_game_protocol.h"
 #include "image.h"
 #include "surface.h"
 #include "world.h"
@@ -23,7 +23,6 @@
 #include <netinet/in.h> // struct sockaddr_in
 #include <sys/socket.h>
 #include <semaphore.h>
-#include <common.h>
 
 #include "player_list.h"
 #include "common.h"
@@ -32,7 +31,6 @@
 
 int id, s;
 int current = 1;		//**
-WorldViewer viewer;
 World world;
 Vehicle* vehicle; // The vehicle
 PlayersList * players;
@@ -61,10 +59,10 @@ sem_t world_started_sem;
         ClientUpdate * cu = wp->updates;
         int i, n = wp->num_vehicles;
 
-        if(n < current_players) {
+        if(n < current) {
 
             //Some player quit
-            current_players = n;
+            current = n;
             Player * p = players->first;
             while(p != NULL) {
 
@@ -115,12 +113,12 @@ void * new_player_listener(void * args) {
 
     while(1) {
 
-        recv_packet_TCP(socket_desc, buf);
+        TCP_recive_packet(socket_desc, buf);
         ImagePacket * imagePacket = Packet_deserialize(buf, ((PacketHeader *) buf)->size);
         Vehicle * newvehicle=(Vehicle*) malloc(sizeof(Vehicle));
         Vehicle_init(newvehicle, &world, imagePacket->id, imagePacket->image);
         World_addVehicle(&world, newvehicle);
-        current_players += 1;
+        current += 1;
         player_list_insert(players, imagePacket->id, NULL);
 
         printf("[NEW PLAYER THREAD] Player %d added to the world\n", imagePacket->id);
@@ -375,21 +373,16 @@ int main(int argc, char **argv) {
     pthread_detach(ust);
 
 
-/*  Image* map_elevation;
-  Image* map_texture;
-  Image* my_texture_from_server;
-*/
-
   //RUN WORLD
   // construct the world
-  World_init(&world, map_elevation, map_texture, 0.5, 0.5, 0.5);
+  World_init(&world, SurfaceTexture, ElevationTexture, 0.5, 0.5, 0.5);
   
   //create vehicle
   vehicle=(Vehicle*) malloc(sizeof(Vehicle));
-  Vehicle_init(&vehicle, &world, my_id, my_texture_from_server);
+  Vehicle_init(&vehicle, &world, my_id, my_texture);
   
   // push it to the world
-  World_addVehicle(&world, v);
+  World_addVehicle(&world, vehicle);
 
   // spawn a thread that will listen the update messages from
   // the server, and sends back the controls
@@ -407,7 +400,8 @@ int main(int argc, char **argv) {
 
   WorldViewer_runGlobal(&world, vehicle, &argc, argv);
 
-  // cleanup
+ /* // cleanup
   World_destroy(&world);
-  return 0;
+*/ 
+ return 0;
 }

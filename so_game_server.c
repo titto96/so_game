@@ -1,4 +1,4 @@
-// #include <GL/glut.h> // not needed here
+#include <GL/glut.h> // not needed here
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -23,7 +23,6 @@
 #include <semaphore.h>
 
 #include "common.h"
-
 #include "so_game_protocol.h"
 #include "player_list.h"
 #include "function.h"
@@ -94,7 +93,7 @@ void * TCP_session_thread(void * arg) {
     printf("[PLAYER HANDLER THREAD] ID sended %d\n", id);
 
     //Recive texture from client
-    recv_packet_TCP(socket_desc, buf);
+    TCP_recive_packet(socket_desc, buf);
     printf("[PLAYER HANDLER THREAD ID %d] Recived texture from player ID %d, bytes %d\n", id, id, ((PacketHeader *) buf)->size);
     ImagePacket * packetTexture = (ImagePacket *) Packet_deserialize(buf, ((PacketHeader *) buf)->size);
     Image * playerTexture = packetTexture->image;

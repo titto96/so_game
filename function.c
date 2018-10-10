@@ -1,3 +1,4 @@
+#include "function.h"
 #include <sys/socket.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,7 +8,7 @@
 #include "common.h"
 
 
-void TCP_recive_packet(int socket_desk, char buf[]){
+void TCP_recive_packet(int socket_desc, char buf[]){
 	
     int recived_bytes = 0, left_bytes = 8, packetsize, ret;
     char * tmp = buf;
