@@ -52,8 +52,7 @@ Image* Image_alloc(int rows, int cols, PixelType type){
   img->data = (unsigned char*) malloc(rows*cols*bpp);
   img->row_data = (unsigned char**) malloc(sizeof(unsigned char*)*rows);
   unsigned char* base_data = img->data;
-  size_t i;
-  for (i=0; i<rows; i++){
+  for (size_t i=0; i<rows; i++){
     img->row_data[i]=base_data;
     base_data += cols*bpp;
   }

@@ -60,12 +60,12 @@ int r, c, i;
       points_row_ptr++;
     }
   }
-  for (r=1; r<rows-1; r++) {
+  for (int r=1; r<rows-1; r++) {
     Vec3* normals_row_ptr = s->normal_rows[r];
     Vec3* points_row_ptr = s->point_rows[r];
     Vec3* points_row_prev = s->point_rows[r-1];
     Vec3* points_row_next = s->point_rows[r+1];
-    for (c=1; c<cols-1; c++) {
+    for (int c=1; c<cols-1; c++) {
       Vec3 delta_px, delta_py;
       v3compose(&delta_px, points_row_next, points_row_prev, 1, -1);
       v3compose(&delta_py, points_row_ptr+1, points_row_ptr-1, 1, -1);
