@@ -336,13 +336,13 @@ int main(int argc, char **argv) {
 
 
     //Reciving SurfaceTexture
-    recv_packet_TCP(socket_desc, buf);
+    TCP_recive_packet(socket_desc, buf);
     printf("[MAIN] Surface texture recived\n");
     imagePacket = (ImagePacket *) Packet_deserialize(buf, ((PacketHeader *) buf)->size);
     Image * SurfaceTexture = imagePacket->image;
 
    //Reciving ElevationTexture
-    recv_packet_TCP(socket_desc, buf);
+    TCP_recive_packet(socket_desc, buf);
     imagePacket = (ImagePacket *) Packet_deserialize(buf, ((PacketHeader *) buf)->size);
     Image * ElevationTexture = imagePacket->image;
     printf("[MAIN] Elevation texture recived\n");
@@ -399,9 +399,6 @@ int main(int argc, char **argv) {
   ERROR_HELPER(ret, "[MAIN] Error world started");
 
   WorldViewer_runGlobal(&world, vehicle, &argc, argv);
-
- /* // cleanup
-  World_destroy(&world);
-*/ 
+ 
  return 0;
 }

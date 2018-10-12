@@ -379,7 +379,7 @@ int main(int argc, char **argv) {
   
   //create vehicle
   vehicle=(Vehicle*) malloc(sizeof(Vehicle));
-  Vehicle_init(&vehicle, &world, my_id, my_texture);
+  Vehicle_init(vehicle, &world, my_id, my_texture);
   
   // push it to the world
   World_addVehicle(&world, vehicle);
@@ -399,9 +399,6 @@ int main(int argc, char **argv) {
   ERROR_HELPER(ret, "[MAIN] Error world started");
 
   WorldViewer_runGlobal(&world, vehicle, &argc, argv);
-
- /* // cleanup
-  World_destroy(&world);
-*/ 
+ 
  return 0;
 }
